@@ -109,9 +109,11 @@ export default {
         if (this.checkId(this.player1Location, this.lines[i])) {
           alert("玩家1胜");
           this.game_state = 0;
+          return;
         } else if (this.checkId(this.player2Location, this.lines[i])) {
           alert("玩家2胜");
           this.game_state = 0;
+          return;
         }
       }
     },
