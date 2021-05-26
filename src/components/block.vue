@@ -1,14 +1,4 @@
 <template>
-  <!-- <div class="box" @click="changePlayer(i, j)">
-    {{ childstats[i - 1][j - 1].id }}
-  </div>
-  <div v-for="i in 3" :key="i">
-    <div class="body">
-      <div v-for="j in 3" :key="j">
-        <block :i="i" :j="j"></block>
-      </div>
-    </div>
-  </div> -->
   <div>
     <div v-for="i in 3" :key="i">
       <div class="body">
@@ -19,7 +9,14 @@
         </div>
       </div>
     </div>
-    <button @click="goBack">返回上一步</button>
+    <!-- <button @click="goBack">返回上一步</button> -->
+    <button
+      v-for="(item, index) of history"
+      :key="index"
+      @click="goBack2(index)"
+    >
+      返回第{{ index }}步
+    </button>
   </div>
 </template>
 
@@ -57,6 +54,8 @@ export default {
       ],
       nextPlayer: "O",
       history: [],
+      history1: [],
+      history2: [],
       player1Location: [],
       player2Location: [],
       game_state: 1,
@@ -90,6 +89,7 @@ export default {
         .filter((n) => n.player == "X")
         .map((n) => parseInt(n.id));
       this.findWinner();
+      console.log(this.childstats.player);
     },
     // 比较数组1是否包含数组2
     checkId(arr1, arr2) {
@@ -119,28 +119,47 @@ export default {
       }
     },
     // 玩家悔棋函数
-    goBack() {
-      // 判断是否是第一步
-      if (!this.history[this.history.length - 1]) {
-        alert("无法返回上一步！");
-        return;
+    // goBack() {
+    //   // 判断是否是第一步
+    //   if (!this.history[this.history.length - 1]) {
+    //     alert("无法返回上一步！");
+    //     return;
+    //   }
+    //   // 将玩家最后一步的坐标给取出来
+    //   let i = this.history[this.history.length - 1].locationx;
+    //   let j = this.history[this.history.length - 1].locationy;
+    //   // 将历史记录中的最后一步移除
+    //   this.history.pop();
+    //   // 将最后一步的玩家删除，同时允许点击该网格
+    //   this.childstats[i - 1][j - 1].player = "";
+    //   this.childstats[i - 1][j - 1].click_state = true;
+    //   // 将下一位玩家状态改为上一步
+    //   if (this.nextPlayer == "O") {
+    //     this.nextPlayer = "X";
+    //   } else if ((this.nextPlayer = "X")) {
+    //     this.nextPlayer = "O";
+    //   }
+    //   // 将游戏状态改为1，防止因为游戏结束问题，不能继续游戏
+    //   this.game_state = 1;
+    // },
+    goBack2(index) {
+      this.game_state = 1;
+      // slice返回一个数组，第一个参数为开始位置，第二个为结束位置
+      this.history2 = this.history.slice(index);
+      this.history = this.history.slice(0, index);
+      for (let x = 0; x < this.history2.length; x++) {
+        this.childstats[this.history2[x].locationx - 1][
+          this.history2[x].locationy - 1
+        ].player = "";
+        this.childstats[this.history2[x].locationx - 1][
+          this.history2[x].locationy - 1
+        ].click_state = true;
       }
-      // 将玩家最后一步的坐标给取出来
-      let i = this.history[this.history.length - 1].locationx;
-      let j = this.history[this.history.length - 1].locationy;
-      // 将历史记录中的最后一步移除
-      this.history.pop();
-      // 将最后一步的玩家删除，同时允许点击该网格
-      this.childstats[i - 1][j - 1].player = "";
-      this.childstats[i - 1][j - 1].click_state = true;
-      // 将下一位玩家状态改为上一步
       if (this.nextPlayer == "O") {
         this.nextPlayer = "X";
       } else if ((this.nextPlayer = "X")) {
         this.nextPlayer = "O";
       }
-      // 将游戏状态改为1，防止因为游戏结束问题，不能继续游戏
-      this.game_state = 1;
     },
   },
 };
