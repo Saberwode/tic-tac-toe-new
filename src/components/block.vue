@@ -19,6 +19,7 @@
         </div>
       </div>
     </div>
+    <button @click="goBack">返回上一步</button>
   </div>
 </template>
 
@@ -69,12 +70,6 @@ export default {
       if (!this.childstats[i - 1][j - 1].click_state) return;
       this.childstats[i - 1][j - 1].player = this.nextPlayer;
       this.childstats[i - 1][j - 1].click_state = false;
-      if (this.nextPlayer == "O") {
-        this.nextPlayer = "X";
-      } else if ((this.nextPlayer = "X")) {
-        this.nextPlayer = "O";
-      }
-      // console.log(this.childstats[i - 1][j - 1].player);
       // 记录玩家移动的位置
       this.history.push({
         player: this.childstats[i - 1][j - 1].player,
@@ -82,7 +77,11 @@ export default {
         locationy: j,
         id: this.childstats[i - 1][j - 1].id,
       });
-      // console.log(this.history);
+      if (this.nextPlayer == "O") {
+        this.nextPlayer = "X";
+      } else if ((this.nextPlayer = "X")) {
+        this.nextPlayer = "O";
+      }
       // 遍历玩家移动的位置，分别获得两个玩家的行动路线
       this.player1Location = this.history
         .filter((n) => n.player == "O")
@@ -90,11 +89,9 @@ export default {
       this.player2Location = this.history
         .filter((n) => n.player == "X")
         .map((n) => parseInt(n.id));
-      // console.log(this.player1Location);
-      // console.log(this.player2Location);
-      // console.log(this.player1Location[1]);
       this.findWinner();
     },
+    // 比较数组1是否包含数组2
     checkId(arr1, arr2) {
       for (let i = arr2.length - 1; i >= 0; i--) {
         if (!arr1.includes(arr2[i])) {
@@ -104,18 +101,46 @@ export default {
 
       return true;
     },
+    // 判断获胜玩家函数
     findWinner() {
       for (let i = 0; i < this.lines.length; i++) {
+        // 如果玩家1的位置数组中包含了胜利条件数组
         if (this.checkId(this.player1Location, this.lines[i])) {
           alert("玩家1胜");
+          // 游戏结束，将游戏状态置0
           this.game_state = 0;
           return;
+          // 如果玩家2的位置数组中包含了胜利条件数组
         } else if (this.checkId(this.player2Location, this.lines[i])) {
           alert("玩家2胜");
           this.game_state = 0;
           return;
         }
       }
+    },
+    // 玩家悔棋函数
+    goBack() {
+      // 判断是否是第一步
+      if (!this.history[this.history.length - 1]) {
+        alert("无法返回上一步！");
+        return;
+      }
+      // 将玩家最后一步的坐标给取出来
+      let i = this.history[this.history.length - 1].locationx;
+      let j = this.history[this.history.length - 1].locationy;
+      // 将历史记录中的最后一步移除
+      this.history.pop();
+      // 将最后一步的玩家删除，同时允许点击该网格
+      this.childstats[i - 1][j - 1].player = "";
+      this.childstats[i - 1][j - 1].click_state = true;
+      // 将下一位玩家状态改为上一步
+      if (this.nextPlayer == "O") {
+        this.nextPlayer = "X";
+      } else if ((this.nextPlayer = "X")) {
+        this.nextPlayer = "O";
+      }
+      // 将游戏状态改为1，防止因为游戏结束问题，不能继续游戏
+      this.game_state = 1;
     },
   },
 };
@@ -124,7 +149,7 @@ export default {
 <style scoped>
 .box {
   background: #fff;
-  margin: 0 auto;
+  margin: 0 aut o;
   width: 100px;
   height: 100px;
   text-align: center;
