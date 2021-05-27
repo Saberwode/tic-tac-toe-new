@@ -19,26 +19,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-.box {
-  background: #fff;
-  margin: 0 auto;
-  width: 100px;
-  height: 100px;
-  text-align: center;
-  line-height: 100px;
-  float: left;
-  border-left: 1px solid black;
-  border-bottom: 1px solid black;
-}
-
-.body {
-  width: 303px;
-  height: 100px;
-  margin: 0 auto;
-  display: block;
-  border-right: 1px solid black;
-  border-top: 1px solid black;
-}
-</style>

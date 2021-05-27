@@ -1,19 +1,21 @@
 <template>
   <div>
-    <div v-for="i in 3" :key="i">
-      <div class="body">
-        <div v-for="j in 3" :key="j">
-          <div class="box" @click="changePlayer(i, j)">
-            {{ childstats[i - 1][j - 1].player }}
-          </div>
-        </div>
+    <div class="body">
+      <div
+        class="box"
+        v-for="item in childstats"
+        :key="item"
+        @click="changePlayer(item)"
+      >
+        {{ item.player }}
       </div>
     </div>
+
     <!-- <button @click="goBack">返回上一步</button> -->
     <button
       v-for="(item, index) of history"
       :key="index"
-      @click="goBack2(index)"
+      @click="goBack(index)"
     >
       返回第{{ index }}步
     </button>
@@ -26,22 +28,17 @@ export default {
   data() {
     return {
       childstats: [
-        [
-          { id: "1", click_state: true, player: "" },
-          { id: "2", click_state: true, player: "" },
-          { id: "3", click_state: true, player: "" },
-        ],
-        [
-          { id: "4", click_state: true, player: "" },
-          { id: "5", click_state: true, player: "" },
-          { id: "6", click_state: true, player: "" },
-        ],
-        [
-          { id: "7", click_state: true, player: "" },
-          { id: "8", click_state: true, player: "" },
-          { id: "9", click_state: true, player: "" },
-        ],
+        { id: "1", player: "" },
+        { id: "2", player: "" },
+        { id: "3", player: "" },
+        { id: "4", player: "" },
+        { id: "5", player: "" },
+        { id: "6", player: "" },
+        { id: "7", player: "" },
+        { id: "8", player: "" },
+        { id: "9", player: "" },
       ],
+
       lines: [
         [1, 2, 3],
         [4, 5, 6],
@@ -54,8 +51,6 @@ export default {
       ],
       nextPlayer: "O",
       history: [],
-      history1: [],
-      history2: [],
       player1Location: [],
       player2Location: [],
       game_state: 1,
@@ -63,24 +58,18 @@ export default {
   },
   props: [],
   methods: {
-    changePlayer(i, j) {
+    changePlayer(item) {
       if (!this.game_state) return;
       // 点击写入玩家
-      if (!this.childstats[i - 1][j - 1].click_state) return;
-      this.childstats[i - 1][j - 1].player = this.nextPlayer;
-      this.childstats[i - 1][j - 1].click_state = false;
+      // 如果玩家不为空
+      if (item.player) return;
+      item.player = this.nextPlayer;
       // 记录玩家移动的位置
       this.history.push({
-        player: this.childstats[i - 1][j - 1].player,
-        locationx: i,
-        locationy: j,
-        id: this.childstats[i - 1][j - 1].id,
+        player: item.player,
+        id: item.id,
       });
-      if (this.nextPlayer == "O") {
-        this.nextPlayer = "X";
-      } else if ((this.nextPlayer = "X")) {
-        this.nextPlayer = "O";
-      }
+      this.nextPlayer = this.nextPlayer == "O" ? "X" : "O";
       // 遍历玩家移动的位置，分别获得两个玩家的行动路线
       this.player1Location = this.history
         .filter((n) => n.player == "O")
@@ -93,73 +82,43 @@ export default {
     },
     // 比较数组1是否包含数组2
     checkId(arr1, arr2) {
-      for (let i = arr2.length - 1; i >= 0; i--) {
-        if (!arr1.includes(arr2[i])) {
-          return false;
-        }
-      }
-
-      return true;
+      return arr2.every((v) => arr1.includes(v));
     },
     // 判断获胜玩家函数
     findWinner() {
-      for (let i = 0; i < this.lines.length; i++) {
-        // 如果玩家1的位置数组中包含了胜利条件数组
-        if (this.checkId(this.player1Location, this.lines[i])) {
+      this.lines.forEach((v) => {
+        // 如果玩家1的位置数组中包含了胜利条件数组;
+        if (this.checkId(this.player1Location, v)) {
           alert("玩家1胜");
           // 游戏结束，将游戏状态置0
           this.game_state = 0;
           return;
           // 如果玩家2的位置数组中包含了胜利条件数组
-        } else if (this.checkId(this.player2Location, this.lines[i])) {
+        } else if (this.checkId(this.player2Location, v)) {
           alert("玩家2胜");
           this.game_state = 0;
           return;
         }
-      }
+      });
     },
-    // 玩家悔棋函数
-    // goBack() {
-    //   // 判断是否是第一步
-    //   if (!this.history[this.history.length - 1]) {
-    //     alert("无法返回上一步！");
-    //     return;
-    //   }
-    //   // 将玩家最后一步的坐标给取出来
-    //   let i = this.history[this.history.length - 1].locationx;
-    //   let j = this.history[this.history.length - 1].locationy;
-    //   // 将历史记录中的最后一步移除
-    //   this.history.pop();
-    //   // 将最后一步的玩家删除，同时允许点击该网格
-    //   this.childstats[i - 1][j - 1].player = "";
-    //   this.childstats[i - 1][j - 1].click_state = true;
-    //   // 将下一位玩家状态改为上一步
-    //   if (this.nextPlayer == "O") {
-    //     this.nextPlayer = "X";
-    //   } else if ((this.nextPlayer = "X")) {
-    //     this.nextPlayer = "O";
-    //   }
-    //   // 将游戏状态改为1，防止因为游戏结束问题，不能继续游戏
-    //   this.game_state = 1;
-    // },
-    goBack2(index) {
+    goBack(index) {
       this.game_state = 1;
+      this.clearOut();
       // slice返回一个数组，第一个参数为开始位置，第二个为结束位置
-      this.history2 = this.history.slice(index);
+      // this.history2 = this.history.slice(index);
       this.history = this.history.slice(0, index);
-      for (let x = 0; x < this.history2.length; x++) {
-        this.childstats[this.history2[x].locationx - 1][
-          this.history2[x].locationy - 1
-        ].player = "";
-        this.childstats[this.history2[x].locationx - 1][
-          this.history2[x].locationy - 1
-        ].click_state = true;
-      }
-      if (this.nextPlayer == "O") {
-        this.nextPlayer = "X";
-      } else if ((this.nextPlayer = "X")) {
+      // 如果index为0那就初始化棋盘，将下一个玩家置为O
+      if (!index) {
         this.nextPlayer = "O";
+        return;
       }
+      this.history.forEach((v) => {
+        this.childstats[Number(v.id) - 1].player = v.player;
+      });
+      this.nextPlayer = this.history[index - 1].player == "O" ? "X" : "O";
+    },
+    clearOut() {
+      this.childstats.forEach((v) => (v.player = ""));
     },
   },
 };
@@ -167,23 +126,25 @@ export default {
 
 <style scoped>
 .box {
-  background: #fff;
-  margin: 0 aut o;
   width: 100px;
   height: 100px;
-  text-align: center;
   line-height: 100px;
-  float: left;
+  background: #fff;
   border-left: 1px solid black;
   border-bottom: 1px solid black;
+  text-align: center;
+  font-size: 40px;
 }
 
 .body {
+  display: flex;
   width: 303px;
-  height: 100px;
-  margin: 0 auto;
-  display: block;
+  flex-wrap: wrap;
   border-right: 1px solid black;
   border-top: 1px solid black;
+  margin: auto;
+}
+button {
+  margin-top: 10px;
 }
 </style>
