@@ -86,7 +86,7 @@ export default {
     },
     // 判断获胜玩家函数
     findWinner() {
-      this.lines.forEach((v) => {
+      this.lines.some((v) => {
         // 如果玩家1的位置数组中包含了胜利条件数组;
         if (this.checkId(this.player1Location, v)) {
           alert("玩家1胜");
